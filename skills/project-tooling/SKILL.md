@@ -27,27 +27,43 @@ If the stack is not obvious (a new project with no language named, say), ask.
 A stack that does not exist yet is not invented here: it is created in
 project-templates later, from a real project, once there is one.
 
+## Ask first, once per task
+
+Two answers shape everything after them, so get both before the first change:
+
+- **Who the author is** — name and email. They go into `LICENSE.md` and into
+  every commit, which is authored by the person with the agent as
+  `Co-Authored-By`. Offer what git resolves in the project
+  (`git config user.name`, `git config user.email`) as the default, but show
+  it: the global identity can be a work address that does not belong in a
+  personal project. If the two differ across the user's repositories, say so.
+- **Whether you may merge yourself** — see *Merging*.
+
+The answers hold for this task, not for the next one.
+
 ## The tool
 
 ```bash
-./apply.sh <stack> <target> [--check] [--diff] [--contract-only]
-./apply.ps1 <stack> <target> [-Check] [-Diff] [-ContractOnly]   # same thing, PowerShell 7
+./apply.sh <stack> <target> [--check] [--diff] [--contract-only] [--author "Name <email>"]
+./apply.ps1 <stack> <target> [-Check] [-Diff] [-ContractOnly] [-Author "Name <email>"]
 ```
 
 It never overwrites. Missing files are created; differing contract files are
 reported (`DIFFERS`), with the diff under `--diff`; starter files are created
 when missing and otherwise left alone. `--check` writes nothing and exits 1 on
 any drift. `--contract-only` skips starters — use it on every existing project,
-where a template `build.sbt` or CI workflow would not fit.
+where a template `build.sbt` or CI workflow would not fit. Always pass
+`--author` with the answer from above.
 
 ## Create
 
 1. Create the directory (its name becomes `{{PROJECT}}`: the sbt `name`, the
    Haskell package name — so a valid package name, lowercase with hyphens).
-2. `git init` there, then `apply.sh <stack> <dir>`.
-3. Make the starters the project's own: what the project is in `CLAUDE.md`, its
-   modules and dependencies in `build.sbt` / the `.cabal` file. Add flags from
-   `CompilerFlags` groups rather than writing flag strings.
+2. `git init` there, then `apply.sh <stack> <dir> --author "<name> <email>"`.
+3. Make the starters the project's own: what the project is in `CLAUDE.md` (it
+   already loads `CONVENTIONS.md`), its modules and dependencies in
+   `build.sbt` / the `.cabal` file. Add flags from `CompilerFlags` groups
+   rather than writing flag strings.
 4. Prove it: `sbt verify` (Scala) or `cabal build all && cabal test all`
    (Haskell) must pass before the first commit.
 5. Tell the user about the one step only they can do if the project will run
@@ -93,13 +109,23 @@ Then:
 4. Version bumps (sbt, Scala, scalafmt) are checked by running the gate, not by
    reading changelogs. A formatter bump: run the formatter and report how many
    files it touched.
-5. Before committing, check that the new `.gitattributes` does not silently
+5. The project's documents: `CONVENTIONS.md` arrives as a contract file; make
+   sure the project's `CLAUDE.md` loads it (`@CONVENTIONS.md`) — creating a
+   minimal `CLAUDE.md` if there is none, written from the project's README —
+   and that anything project-specific that contradicts it stays stated in
+   `CLAUDE.md`, which wins. A project without a `LICENSE.md` gets the starter
+   (render it with `--author`); an existing MIT license keeps its year and
+   gains the author's email, and a `LICENSE` without extension becomes
+   `LICENSE.md` (`git mv`, so history follows). A license that is not MIT is
+   never changed without asking.
+6. Before committing, check that the new `.gitattributes` does not silently
    renormalise line endings: stage everything plus `git add --renormalize .`
    and count files whose only change is CRLF → LF (should be none, or be
    mentioned).
-6. One commit per project, in that repository's commit-message style (look at
-   `git log`), explaining what changed and what was verified. Push the branch,
-   then merge as described in *Merging*.
+7. One commit per project, in that repository's commit-message style (look at
+   `git log`) and under `CONVENTIONS.md`'s git rules, explaining what changed
+   and what was verified. Push the branch, then merge as described in
+   *Merging*.
 
 **Check** is steps 1–2 alone, reported without changing anything.
 
@@ -135,9 +161,17 @@ them (chapter tags, release tags) falls out of `main`'s history.
   `gh pr create --fill --base main`, wait for the checks, then
   `gh pr merge --merge --delete-branch`. The pull request stays as the record,
   and CI runs before the merge.
-- Without it: merge locally in a worktree of `main` with
-  `git merge --no-ff <branch>`, push `main`, then delete the branch locally
-  and on the remote. Mention once that installing `gh`
+- Without it, where `main` is free to check out: `git switch main`,
+  `git merge --no-ff <branch>`, push `main`, delete the branch.
+- Without it, where `main` is checked out in the user's own working copy
+  (and so cannot be checked out anywhere else): build the merge commit
+  without a checkout — `git commit-tree <branch>^{tree} -p origin/main -p
+  <branch> -m "Merge branch '<branch>'"` — and push it with
+  `git push origin <sha>:refs/heads/main`. That is a fast-forward of the
+  remote as long as the branch was cut from the latest `origin/main`; if the
+  push is rejected, `main` moved: rebase the branch onto it and build again.
+  The user's local `main` is then behind until they pull — say so.
+- Without `gh`, mention once that installing it
   (`winget install GitHub.cli`, then `gh auth login`, which only the user can
   do) would keep the pull request as the record.
 
