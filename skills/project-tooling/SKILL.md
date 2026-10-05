@@ -1,16 +1,37 @@
 ---
 name: project-tooling
-description: Create, align or check a project's tooling — formatter, editor settings, .gitignore/.gitattributes, compiler flags, CI, update bots — from the user's project-templates repository (C:\Git\Pessoal\project-templates, stacks scala-sbt and haskell-cabal). Use it whenever the user starts a new Scala or Haskell project, asks to set up, configure, standardise, align or "bring up to the pattern" an existing one, asks whether a project follows the template, wants to upgrade the pinned stack (Scala, sbt, scalafmt, munit, Java, GHC) across projects, or changes something in the templates themselves — even if they never say "template" or "skill".
+description: Create, align or check a project's tooling — formatter, editor settings, .gitignore/.gitattributes, compiler flags, CI, update bots — from the user's project-templates repository (github.com/thiagotjuliao/project-templates, stacks scala-sbt and haskell-cabal). Use it whenever the user starts a new Scala or Haskell project, asks to set up, configure, standardise, align or "bring up to the pattern" an existing one, asks whether a project follows the template, wants to upgrade the pinned stack (Scala, sbt, scalafmt, munit, Java, GHC) across projects, or changes something in the templates themselves — even if they never say "template" or "skill".
 ---
 
 # project-tooling
 
-The user keeps the configuration every project starts from in one repository:
-`C:\Git\Pessoal\project-templates` (github.com/thiagotjuliao/project-templates).
-This skill is how that repository gets used: on a new project, on an existing
-one that should follow it, and on the templates themselves.
+The user keeps the configuration every project starts from in one repository,
+github.com/thiagotjuliao/project-templates (private). This skill is how that
+repository gets used: on a new project, on an existing one that should follow
+it, and on the templates themselves.
 
-Read the repository's `README.md` first, every time. It is the source of truth
+## Find the templates
+
+The user works on more than one machine and operating system, and the clone
+sits in a different place on each (`C:\Git\Pessoal\project-templates` on one,
+nowhere yet on another), so its path is found, never assumed:
+
+1. Look for an existing clone — a sibling of the current project's directory
+   first, since the user keeps their repositories side by side — and confirm it
+   is the right one with `git -C <dir> remote get-url origin`.
+2. If there is none, ask where to put it (offer the sibling directory) and
+   clone it with an authenticated `gh repo clone
+   thiagotjuliao/project-templates <dir>`; the repository is private, so a
+   plain `git clone` over HTTPS without credentials fails.
+3. Bring it up to date with `git -C <dir> pull --ff-only` before using it. A
+   stale clone renders old templates, and an Align would then report the
+   project as drifted in the wrong direction. If the pull is refused, the clone
+   has local work: report it and stop rather than discard it.
+
+Use `apply.sh` from bash (macOS, Linux, Git Bash) and `apply.ps1` from
+PowerShell; they do the same thing.
+
+Read the repository's `README.md` next, every time. It is the source of truth
 for the layout, the stacks, the pinned versions, the flag groups and the
 deliberate exceptions; this skill only describes how to work with it, and it
 does not repeat what the README says, so that the two cannot disagree.
@@ -171,9 +192,10 @@ them (chapter tags, release tags) falls out of `main`'s history.
   remote as long as the branch was cut from the latest `origin/main`; if the
   push is rejected, `main` moved: rebase the branch onto it and build again.
   The user's local `main` is then behind until they pull — say so.
-- Without `gh`, mention once that installing it
-  (`winget install GitHub.cli`, then `gh auth login`, which only the user can
-  do) would keep the pull request as the record.
+- Without `gh`, mention once that installing it — `brew install gh` on macOS,
+  `winget install GitHub.cli` on Windows, the distribution's package on Linux
+  — then `gh auth login`, which only the user can do, would keep the pull
+  request as the record.
 
 **The user merges:** push the branch and give a compare link,
 `https://github.com/<owner>/<repo>/compare/main...<branch>?expand=1`. When
