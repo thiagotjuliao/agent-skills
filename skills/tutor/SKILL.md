@@ -80,6 +80,14 @@ Close with a short summary of what the exercise taught, as a table of the
 pieces and the idea behind each, in the user's words where possible. Then
 offer the next exercise.
 
+Write the summary down where the user keeps their notes, if they keep any — a
+`notes/` file per chapter, a study log the project's README names — adding the
+table and a line on where they got stuck. A summary that stays in the chat is
+lost with the conversation, and it is worth more reread a week later than in
+the moment. If the project has no such place, offer once to start one; do not
+create it unasked, and keep it out of the material itself and off any branch
+the material is published from.
+
 A surprise worth knowing — a pitfall the material does not mention, found on
 the way — is offered as an addition to the material, where the project records
 such things, on its own branch. Not done unasked: the user is studying, and the
