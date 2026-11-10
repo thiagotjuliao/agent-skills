@@ -179,9 +179,11 @@ them (chapter tags, release tags) falls out of `main`'s history.
 **Merging yourself:**
 
 - With the GitHub CLI installed and authenticated (`gh auth status`):
-  `gh pr create --fill --base main`, wait for the checks, then
-  `gh pr merge --merge --delete-branch`. The pull request stays as the record,
-  and CI runs before the merge.
+  `gh pr create --fill --base main`, wait for the checks
+  (`gh pr checks --watch`), then `gh pr merge --merge --delete-branch`. The
+  pull request stays as the record, and CI runs before the merge. Not
+  `--auto` instead of waiting: without required status checks it merges at
+  once (see `references/general.md`).
 - Without it, where `main` is free to check out: `git switch main`,
   `git merge --no-ff <branch>`, push `main`, delete the branch.
 - Without it, where `main` is checked out in the user's own working copy
