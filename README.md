@@ -13,6 +13,7 @@ stay useful to any agent that can be pointed at a Markdown file.
 
 | skill | what it does |
 | --- | --- |
+| [lesson-author](skills/lesson-author/SKILL.md) | turns a topic into a validated `.lesson.yaml` for the [lessoncraft](https://github.com/thiagotjuliao/lessoncraft) video-course pipeline |
 | [project-tooling](skills/project-tooling/SKILL.md) | creates, aligns and checks a project's tooling from [project-templates](https://github.com/thiagotjuliao/project-templates) |
 | [tutor](skills/tutor/SKILL.md) | guides an exercise or concept by questions, one step at a time, instead of giving the answer |
 
